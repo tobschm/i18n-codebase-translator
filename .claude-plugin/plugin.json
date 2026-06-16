@@ -1,0 +1,8 @@
+{
+  "name": "codebase-translator",
+  "description": "A plugin to translate the spoken language of a project",
+  "version": "1.0.0",
+  "author": {
+    "name": "Tobias Schmelzle"
+  }
+}
