@@ -1,0 +1,14 @@
+{
+  "name": "i18n-codebase-translator",
+  "owner": {
+    "name": "Tobias Schmelzle"
+  },
+  "plugins": [
+    {
+      "name": "i18n-codebase-translator",
+      "description": "A plugin to translate the human language of a project",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
