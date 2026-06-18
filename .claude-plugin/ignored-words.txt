@@ -1,0 +1,14 @@
+# Words that will never be translated, regardless of the source or target language.
+# Add one word per line. Lines starting with # are comments and are ignored.
+# Words are matched case-insensitively.
+
+# --- Brand / product names ---
+# MyBrand
+
+# --- Technical terms that should stay as-is ---
+# API
+# HTTP
+# OAuth
+
+# --- Domain-specific terms ---
+# (add your project-specific terms here)

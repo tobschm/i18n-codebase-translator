@@ -1,6 +1,6 @@
 ---
 name: translate-project-i18n-java
-description: Translates the natural-language identifiers in a Java project from one human language to another (e.g. German to English) while keeping the project compilable and runnable — renaming classes, methods, fields, parameters, variables, packages, enum/constant names, comments, and string literals, and updating associated .properties, .json, and .xml files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the java-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in Java code, do not use this skill unless they have asked for it by name. Parameters: source language (Sprache 1), target language (Sprache 2).
+description: Translates the natural-language identifiers in a Java project from one human language to another (e.g. German to English) while keeping the project compilable and runnable — renaming classes, methods, fields, parameters, variables, packages, enum/constant names, comments, and string literals, and updating associated .properties, .json, and .xml files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the java-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in Java code, do not use this skill unless they have asked for it by name. Parameters: source language (Language 1), target language (Language 2).
 ---
 
 # Java Identifier Translation
@@ -10,8 +10,8 @@ Translate the human-readable identifiers of a Java codebase from a **source huma
 
 ## Required parameters
 Before starting, confirm both:
-- `SOURCE_LANG` (Sprache 1): the human language identifiers are currently written in.
-- `TARGET_LANG` (Sprache 2): the human language to translate identifiers into.
+- `SOURCE_LANG` (Language 1): the human language identifiers are currently written in.
+- `TARGET_LANG` (Language 2): the human language to translate identifiers into.
 
 If either is missing, ask before proceeding.
 
@@ -47,8 +47,10 @@ Treat these as first-class translation targets, not just places to patch referen
 - Names that are semantically load-bearing for a framework: JavaBean getters/setters bound by reflection, JPA/Jackson field↔column/JSON mappings, Spring bean names, `serialVersionUID`, `main`, JUnit/TestNG lifecycle methods. When unsure, preserve the name, or keep the original wire name via mapping (e.g. `@JsonProperty("originalName")`, `@Column(name="...")`).
 - Anything referenced reflectively or by string: `Class.forName`, `getMethod("...")`, resource-bundle keys, config keys — update the string too or do not rename.
 - The external contract: public APIs consumed outside this project are renamed only if the user confirms downstream consumers are in scope.
+- Any names and words that are not in the source language. E.g. if the source language (Language 1) german should be translated to english (Language 2), don't translate any spanish words
 
 ## Procedure
+0. **Load the ignore list.** Read `.claude-plugin/ignored-words.txt` if it exists. Treat every non-empty, non-comment line (lines not starting with `#`) as a protected word that must never be translated, regardless of language. Add these words to the glossary upfront, marked as "ignored by config — unchanged".
 1. **Read this SKILL.md fully, then inventory the project.** Map the source tree, build file (`pom.xml` / `build.gradle`), and config/data files (.properties/.json/.xml). Confirm how to build (`mvn compile`, `gradle build`, or `javac`).
 2. **Establish a baseline.** Compile as-is and, if tests exist, run them. If it does not compile before translation, report and stop — you cannot verify correctness otherwise.
 3. **Build a translation glossary.** For each unique SOURCE_LANG identifier, propose its TARGET_LANG equivalent using the conventions above. Skip identifiers already in TARGET_LANG. Keep the mapping consistent — the same source word always maps to the same target word across code AND config/data files.

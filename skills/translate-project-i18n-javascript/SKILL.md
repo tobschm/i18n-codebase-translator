@@ -1,6 +1,6 @@
 ---
 name: translate-project-i18n-javascript
-description: Translates the natural-language identifiers in a JavaScript or TypeScript project from one human language to another (e.g. German to English) while keeping the project building and running — renaming classes, functions, methods, variables, parameters, properties, modules, constants, comments, and JSDoc, and updating associated .json, .yaml, .env, and config files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the javascript-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in JavaScript code, do not use this skill unless they have asked for it by name. Parameters: source language (Sprache 1), target language (Sprache 2).
+description: Translates the natural-language identifiers in a JavaScript or TypeScript project from one human language to another (e.g. German to English) while keeping the project building and running — renaming classes, functions, methods, variables, parameters, properties, modules, constants, comments, and JSDoc, and updating associated .json, .yaml, .env, and config files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the javascript-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in JavaScript code, do not use this skill unless they have asked for it by name. Parameters: source language (Language 1), target language (Language 2).
 ---
 
 # JavaScript Identifier Translation
@@ -10,8 +10,8 @@ Translate the human-readable identifiers of a JavaScript/TypeScript codebase fro
 
 ## Required parameters
 Before starting, confirm both:
-- `SOURCE_LANG` (Sprache 1): the human language identifiers are currently written in.
-- `TARGET_LANG` (Sprache 2): the human language to translate identifiers into.
+- `SOURCE_LANG` (Language 1): the human language identifiers are currently written in.
+- `TARGET_LANG` (Language 2): the human language to translate identifiers into.
 
 If either is missing, ask before proceeding.
 
@@ -56,8 +56,10 @@ Treat these as first-class translation targets, not just places to patch referen
 - Names tied to the runtime contract: object-property names serialized to/from JSON or an external API, GraphQL field names, DOM/HTML attribute names, CSS class names referenced from stylesheets, React prop names consumed by other components or passed through `...spread`.
 - Anything referenced reflectively or by string: bracket access `obj["name"]`, dynamic `import()`, `eval`, template-literal-built identifiers, string keys in reducers/action types — update the string too or do not rename.
 - The external contract: anything `export`ed and consumed by other packages, public API surface — renamed only if the user confirms downstream consumers are in scope. (Renaming a named export means updating every `import` of it.)
+- Any names and words that are not in the source language. E.g. if the source language (Language 1) german should be translated to english (Language 2), don't translate any spanish words
 
 ## Procedure
+0. **Load the ignore list.** Read `.claude-plugin/ignored-words.txt` if it exists. Treat every non-empty, non-comment line (lines not starting with `#`) as a protected word that must never be translated, regardless of language. Add these words to the glossary upfront, marked as "ignored by config — unchanged".
 1. **Read this SKILL.md fully, then inventory the project.** Map the source tree, `package.json`, build/tooling config (`tsconfig.json`, bundler config, `.eslintrc`), and config/data files (.json/.yaml/.env). Confirm how to build/verify (`npm install`, `npm run build`, `tsc --noEmit`, `npm test`, lint).
 2. **Establish a baseline.** Build/typecheck and, if tests exist, run them. If it does not build before translation, report and stop — you cannot verify correctness otherwise.
 3. **Build a translation glossary.** For each unique SOURCE_LANG identifier, propose its TARGET_LANG equivalent using the conventions above. Skip identifiers already in TARGET_LANG. Keep the mapping consistent — the same source word always maps to the same target word across code AND config/data files.

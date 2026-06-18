@@ -1,6 +1,6 @@
 ---
 name: translate-project-i18n-python
-description: Translates the natural-language identifiers in a Python project from one human language to another (e.g. German to English) while keeping the project importable and runnable — renaming classes, functions, methods, variables, parameters, attributes, modules, constants, comments, and docstrings, and updating associated .properties, .json, .yaml, .ini, .toml, and .env files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the python-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in Python code, do not use this skill unless they have asked for it by name. Parameters: source language (Sprache 1), target language (Sprache 2).
+description: Translates the natural-language identifiers in a Python project from one human language to another (e.g. German to English) while keeping the project importable and runnable — renaming classes, functions, methods, variables, parameters, attributes, modules, constants, comments, and docstrings, and updating associated .properties, .json, .yaml, .ini, .toml, and .env files. ONLY use this skill when the user explicitly invokes it by name (e.g. "use the python-i18n-rename skill"). Do NOT trigger this skill automatically based on the topic alone — even if the user asks to translate or rename identifiers in Python code, do not use this skill unless they have asked for it by name. Parameters: source language (Language 1), target language (Language 2).
 ---
 
 # Python Identifier Translation
@@ -10,8 +10,8 @@ Translate the human-readable identifiers of a Python codebase from a **source hu
 
 ## Required parameters
 Before starting, confirm both:
-- `SOURCE_LANG` (Sprache 1): the human language identifiers are currently written in.
-- `TARGET_LANG` (Sprache 2): the human language to translate identifiers into.
+- `SOURCE_LANG` (Language 1): the human language identifiers are currently written in.
+- `TARGET_LANG` (Language 2): the human language to translate identifiers into.
 
 If either is missing, ask before proceeding.
 
@@ -49,8 +49,10 @@ Treat these as first-class translation targets, not just places to patch referen
 - Names that are semantically load-bearing for a framework or serialization: Pydantic/dataclass field names mapped to JSON/DB columns (use `alias=` / `Field(alias=...)` to keep the wire name if you rename the attribute), SQLAlchemy column/table names, Django model field names tied to migrations, dict keys that mirror an external API.
 - Anything referenced reflectively or by string: `getattr`/`setattr`, `globals()[...]`, dynamic imports (`importlib`), `**kwargs` keys consumed by name, string-based config keys — update the string too or do not rename.
 - The external contract: public APIs (anything importable by other projects, names in `__all__`) are renamed only if the user confirms downstream consumers are in scope.
+- Any names and words that are not in the source language. E.g. if the source language (Language 1) german should be translated to english (Language 2), don't translate any spanish words
 
 ## Procedure
+0. **Load the ignore list.** Read `.claude-plugin/ignored-words.txt` if it exists. Treat every non-empty, non-comment line (lines not starting with `#`) as a protected word that must never be translated, regardless of language. Add these words to the glossary upfront, marked as "ignored by config — unchanged".
 1. **Read this SKILL.md fully, then inventory the project.** Map the source tree, packaging/build files (`pyproject.toml`, `setup.py`/`setup.cfg`, `requirements.txt`), and config/data files (.json/.yaml/.ini/.toml/.env). Confirm how to run/verify (`python -m py_compile`, `pytest`, `python -m <module>`).
 2. **Establish a baseline.** Byte-compile (`python -m compileall`) and, if tests exist, run them. If it does not parse/run before translation, report and stop — you cannot verify correctness otherwise.
 3. **Build a translation glossary.** For each unique SOURCE_LANG identifier, propose its TARGET_LANG equivalent using the conventions above. Skip identifiers already in TARGET_LANG. Keep the mapping consistent — the same source word always maps to the same target word across code AND config/data files.
